@@ -40,6 +40,7 @@ function preload() {
 
 function setup() {
   createCanvas(1520, 720);
+  frameRate(24);
   rearSetting = {
     audio: false,
     video: {
