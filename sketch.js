@@ -48,8 +48,8 @@ function setup() {
       }
     }
   }
-  // webcam = createCapture(rearSetting);
-  webcam = createCapture(VIDEO);
+  webcam = createCapture(rearSetting);
+  // webcam = createCapture(VIDEO);
   webcam.size(3040, 2280);
   webcam.hide();
   myVideoRec = new P5MovRec();
@@ -249,5 +249,11 @@ function saveLog(){
 function writeLog(currentState){
   if(currentState == 1){
     myWriter.print(writerMsg);
+  }
+}
+function mousePressed() {
+  if(mouseX > 0 && mouseX <100 && mouseY > 0 && mouseY < 100){
+    let fs = fullscreen();
+    fullscreen(!fs);
   }
 }
