@@ -30,15 +30,15 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(760, 360);
+  createCanvas(3040, 1440);
   webcam = createCapture(VIDEO);
-  webcam.size(760, 360);
+  webcam.size(3040, 2280);
   webcam.hide();
 }
 
 function draw() {
   background(0);
-  image(webcam,0,0,760,360);
+  image(webcam,0,0,3040,2280);
   
   image(dateIcon, 280, 8, 40, 40);
   image(currentTimeIcon, 360, 8, 40, 40);
@@ -97,7 +97,7 @@ function currentDate() {
   } else {
     stringDay = day();
   }
-  let currentDate = String(year()).substring(2)+'.'+stringMonth+'.'+stringDay
+  let currentDate = nf(year(),2,0)+'.'+nf(month(),2,0)+'.'+nf(day(),2,0); 
 
   return currentDate
 }
@@ -115,7 +115,7 @@ function curTime() {
 function mouseReleased() {
   if(recordState == 0) {
     if(dist(mouseX, mouseY, 684, 180) < 40) {
-      print("hello")
+      
       recordState = 1;
       recordStart = millis();
     }
@@ -123,12 +123,12 @@ function mouseReleased() {
     if(dist(mouseX, mouseY, 684, 220) < 20){
       recordState = 2;
       recordPauseStart = millis();
-      print("paused")
+      
       
     } else if (dist(mouseX, mouseY, 684, 160) < 20) {
       recordState = 3;
       initializeTime();
-      print("stoped")
+      
       setTimeout(()=>{
         recordState = 4;
       }, 5000);
@@ -140,7 +140,7 @@ function mouseReleased() {
     } else if (dist(mouseX, mouseY, 684, 160) < 20) {
       recordState = 3;
       initializeTime();
-      print("stoped");
+      
       setTimeout(()=>{
         recordState = 4;
       }, 5000);
@@ -158,7 +158,7 @@ function getRecordTime() {
     let tempTime = curTime - recordStart - totalPausedTime;
     let recHour = int(tempTime / (1000*60*60)) % 60;
     let recMin = int(tempTime / (1000*60)) % 60;
-    let recSec = int(tempTime / 1000) % 60;
+    let recSec = int(tempTime / 1000) % 24;
     recordTime = nf(recHour,2,0)+':'+nf(recMin,2,0)+':'+nf(recSec,2,0);
   } else if (recordState == 2){
     pauseTime = millis()-recordPauseStart
