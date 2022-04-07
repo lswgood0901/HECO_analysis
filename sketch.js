@@ -1,4 +1,11 @@
 let webcam;
+let detector;
+let detectedObjects = [];
+let myVidoeRec;
+let videoFrame;
+
+let myWriter;
+let writerMsg='';
 
 let pauseBox = [];
 let recordBtn = [];
@@ -8,7 +15,7 @@ let currentTimeIcon;
 let dateIcon;
 let savedIcon;
 let date = '22.04.04';
-let pasengerNum = 100;
+let pasengerNum = 0;
 
 let pauseTime = 0;
 let totalPausedTime = 0;
@@ -19,6 +26,8 @@ let recordPauseStart = 0;
 let recordState = 0;
 
 function preload() {
+  detector = ml5.objectDetector('cocossd');
+  
   pauseBox[0] = loadImage('icon/pauseBox.png'); 
   pauseBox[1] = loadImage('icon/pause box_stoped.png');
   recordBtn[0] = loadImage('icon/recordBtn.png');
@@ -31,72 +40,58 @@ function preload() {
 
 function setup() {
   createCanvas(3040, 1440);
+  rearSetting = {
+    audio: false,
+    video: {
+      facingMode: {
+        exact: "environment"
+      }
+    }
+  }
+  // webcam = createCapture(rearSetting);
   webcam = createCapture(VIDEO);
   webcam.size(3040, 2280);
   webcam.hide();
+  myVideoRec = new P5MovRec();
+  detector.detect(webcam, gotDetections);
 }
 
 function draw() {
   background(0);
   image(webcam,0,0,3040,2280);
   
-  image(dateIcon, 280, 8, 40, 40);
-  image(currentTimeIcon, 360, 8, 40, 40);
-  image(passengerIcon, 440, 8, 40, 40);
+  image(dateIcon, 1120, 32, 160, 160);
+  image(currentTimeIcon, 1440, 32, 160, 160);
+  image(passengerIcon, 1760, 32, 160, 160);
+  
+  doCOCOSSD();
   
   textFont('Roboto');
   textStyle(BOLD);
-  textSize(10);
+  textSize(40);
   textAlign(CENTER);
-  text(pasengerNum, 440, 50, 40, 12);
-  text(currentDate(), 278, 50, 44, 12);
-  text(curTime(), 358, 50, 46, 12);
+  text(pasengerNum, 1760, 200, 160, 48);
+  text(currentDate(), 1112, 200, 176, 48);
+  text(curTime(), 1432, 200, 184, 48);
   
   push();
-  textSize(12);
+  textSize(48);
   fill(255);
-  translate(634,215);
+  translate(2536,860);
   rotate(radians(270));
-  text(recordTime, 0, 0,65,12);
+  text(recordTime, 0, 0,260,48);
   pop();
   
-  print(recordTime);
   getRecordTime();
-  if(recordState == 0) {
-    image(recordBtn[0], 648, 148, 72, 72);
-    
-  } else if (recordState == 1) {
-    image(pauseBox[0], 654, 116, 60, 148);
-    
-  } else if (recordState == 2) {
-    image(pauseBox[1], 654, 116, 60, 148);
-   
-  } else if (recordState == 3) {
-    image(recordBtn[1], 648, 148, 72, 72);
-    
-  } else if (recordState == 4) {
-    image(recordBtn[0], 648, 148, 72, 72);
-    image(savedIcon,673,112,32,20);
-    setTimeout(()=>{
-      recordState = 0;
-    }, 3000);
-  }
+  recordStates(recordState);
+  writeLog(recordState);
+  pasengerNum = 0;
+
 }
 
 
 function currentDate() {
-  let stringMonth;
-  let stringDay;
-  if(month()<10){
-    stringMonth = '0'+month();
-  } else {
-    stringMonth = month();
-  }
-  if(day()<10) {
-    stringDay = '0'+day();
-  } else {
-    stringDay = day();
-  }
+
   let currentDate = nf(year(),2,0)+'.'+nf(month(),2,0)+'.'+nf(day(),2,0); 
 
   return currentDate
@@ -105,45 +100,45 @@ function currentDate() {
 function curTime() {
   let curHours;
   if(hour()>12){
-    curHours = 'PM '+ int(hour()-12)+':'+minute();
+    curHours = 'PM '+ nf(hour()-12,2,0)+':'+nf(minute(),2,0);
   } else{
-    curHours = 'AM' + hour()+':'+minute();
+    curHours = 'AM' + nf(hour(),2,0)+':'+nf(minute(),2,0);
   }
   return curHours
 }
 
 function mouseReleased() {
   if(recordState == 0) {
-    if(dist(mouseX, mouseY, 684, 180) < 40) {
+    if(dist(mouseX, mouseY, 2736, 720) < 160) {
       
       recordState = 1;
       recordStart = millis();
+      startLog();
+      myVideoRec.startRec();
     }
   } else if (recordState == 1){
-    if(dist(mouseX, mouseY, 684, 220) < 20){
+    if(dist(mouseX, mouseY, 2736, 880) < 80){
       recordState = 2;
-      recordPauseStart = millis();
-      
-      
-    } else if (dist(mouseX, mouseY, 684, 160) < 20) {
+      recordPauseStart = millis();  
+    } 
+    if (dist(mouseX, mouseY, 2736, 640) < 80) {
       recordState = 3;
       initializeTime();
-      
-      setTimeout(()=>{
-        recordState = 4;
-      }, 5000);
+      saveLog();
+      myVideoRec.stopRec()
+      recordState = 4
+
     }
   } else if (recordState == 2){
-    if(dist(mouseX,mouseY, 684,220)<20) {
+    if(dist(mouseX,mouseY, 2736,880)<80) {
       recordState = 1;
       totalPausedTime = totalPausedTime+pauseTime;
-    } else if (dist(mouseX, mouseY, 684, 160) < 20) {
+    } else if (dist(mouseX, mouseY, 2736, 640) < 80) {
       recordState = 3;
       initializeTime();
-      
-      setTimeout(()=>{
-        recordState = 4;
-      }, 5000);
+      saveLog();
+      myVideoRec.stopRec()
+      recordState = 4
     }
   }
 }
@@ -167,10 +162,92 @@ function getRecordTime() {
   }
 }
 
+function recordStates(state) {
+  if(state == 0) {
+    image(recordBtn[0], 2592, 592, 288, 288);
+    
+  } else if (state == 1) {
+    image(pauseBox[0], 2616, 464, 240, 592);
+    
+  } else if (state == 2) {
+    image(pauseBox[1], 2616, 464, 240, 592);
+   
+  } else if (state == 3) {
+    image(recordBtn[1], 2592, 592, 288, 288);
+    
+  } else if (state == 4) {
+    image(recordBtn[0], 2592, 592, 288, 288);
+    image(savedIcon,2692,448,128,80);
+    setTimeout(()=>{
+      recordState = 0;
+    }, 3000);
+  }
+}
+
 function initializeTime() {
   recordTime = "00:00:00"
   recordPauseStart = 0
   recordStart = 0
   pauseTime = 0;
   totalPausedTime = 0;
+}
+function gotDetections(error, results) {
+  if (error) {
+    console.error(error);
+  }
+  
+  detectedObjects = results;
+  detector.detect(webcam, gotDetections);
+}
+function doCOCOSSD(){
+  let tempMsg='';
+  for (let i = 0; i < detectedObjects.length; i++) {
+    let object = detectedObjects[i];
+    
+    if(object.label == 'person'){
+      pasengerNum = pasengerNum + 1;
+      
+      push();
+      stroke(255,0,254);
+      strokeWeight(2);
+      noFill();
+      rect(object.x, object.y, object.width, object.height);
+      noStroke();
+      fill(255,0,254);
+      textSize(40);
+      text(object.label+' '+pasengerNum, object.x, object.y - 5);
+      
+      let centerX = object.x + (object.width/2);
+      let centerY = object.y + (object.height/2);
+      strokeWeight(4);
+      stroke(255,0,254);
+      point(centerX, centerY);
+      pop();
+      tempMsg = tempMsg+','+pasengerNum+','+centerX+','+centerY;
+      //개별 사람마다의 X, Y 좌표값 저장
+    }
+  }
+  let millisTime = int(millis() - recordStart - totalPausedTime);
+  writerMsg = ''+recordTime+','+millisTime+','+pasengerNum+''+tempMsg;
+  // 현재 레코딩 타임과 함께 tempMsg 저장
+}
+function startLog(){
+  let mm = nf(month(),2,0);
+  let dd = nf(day(),2,0);
+  let ho = nf(hour(),2,0);
+  let mi = nf(minute(),2,0);
+  let se = nf(second(),2,0);
+  
+  let fileName = 'data_'+ mm + dd +'_'+ ho + mi + se+'.csv';
+  
+  myWriter = createWriter(fileName);
+}
+function saveLog(){
+  myWriter.close();
+  myWriter.clear();
+}
+function writeLog(currentState){
+  if(currentState == 1){
+    myWriter.print(writerMsg);
+  }
 }
