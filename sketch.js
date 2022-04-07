@@ -107,7 +107,7 @@ function curTime() {
   return curHours
 }
 
-function mouseReleased() {
+function touchEnded() {
   if(recordState == 0) {
     if(dist(mouseX, mouseY, 2736, 720) < 160) {
       
@@ -251,7 +251,7 @@ function writeLog(currentState){
     myWriter.print(writerMsg);
   }
 }
-function mousePressed() {
+function touchStarted() {
   console.log("hihihi");
   if(mouseX > 0 && mouseX <100 && mouseY > 0 && mouseY < 100){
     let fs = fullscreen();
