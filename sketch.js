@@ -39,7 +39,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(3040, 1440);
+  createCanvas(1520, 720);
   rearSetting = {
     audio: false,
     video: {
@@ -48,9 +48,9 @@ function setup() {
       }
     }
   }
-  webcam = createCapture(rearSetting);
-  // webcam = createCapture(VIDEO);
-  webcam.size(3040, 2280);
+  // webcam = createCapture(rearSetting);
+  webcam = createCapture(VIDEO);
+  webcam.size(1520, 1140);
   webcam.hide();
   myVideoRec = new P5MovRec();
   detector.detect(webcam, gotDetections);
@@ -58,28 +58,28 @@ function setup() {
 
 function draw() {
   background(0);
-  image(webcam,0,0,3040,2280);
+  image(webcam,0,0,1520,1140);
   
-  image(dateIcon, 1120, 32, 160, 160);
-  image(currentTimeIcon, 1440, 32, 160, 160);
-  image(passengerIcon, 1760, 32, 160, 160);
+  image(dateIcon, 560, 16, 80, 80);
+  image(currentTimeIcon, 720, 16, 80, 80);
+  image(passengerIcon, 880, 16, 80, 80);
   
   doCOCOSSD();
   
   textFont('Roboto');
   textStyle(BOLD);
-  textSize(40);
+  textSize(20);
   textAlign(CENTER);
-  text(pasengerNum, 1760, 200, 160, 48);
-  text(currentDate(), 1112, 200, 176, 48);
-  text(curTime(), 1432, 200, 184, 48);
+  text(pasengerNum, 880, 100, 80, 24);
+  text(currentDate(), 556,100, 88, 24);
+  text(curTime(), 716, 100, 92, 24);
   
   push();
-  textSize(48);
+  textSize(24);
   fill(255);
-  translate(2536,860);
+  translate(1268,430);
   rotate(radians(270));
-  text(recordTime, 0, 0,260,48);
+  text(recordTime, 0, 0,130,24);
   pop();
   
   getRecordTime();
@@ -107,9 +107,9 @@ function curTime() {
   return curHours
 }
 
-function mouseReleased() {
+function touchEnded() {
   if(recordState == 0) {
-    if(dist(mouseX, mouseY, 2736, 720) < 160) {
+    if(dist(mouseX, mouseY, 1368, 360) < 40) {
       
       recordState = 1;
       recordStart = millis();
@@ -117,11 +117,11 @@ function mouseReleased() {
       myVideoRec.startRec();
     }
   } else if (recordState == 1){
-    if(dist(mouseX, mouseY, 2736, 880) < 80){
+    if(dist(mouseX, mouseY, 1368, 440) < 40){
       recordState = 2;
       recordPauseStart = millis();  
     } 
-    if (dist(mouseX, mouseY, 2736, 640) < 80) {
+    if (dist(mouseX, mouseY, 1368, 320) < 40) {
       recordState = 3;
       initializeTime();
       saveLog();
@@ -130,16 +130,20 @@ function mouseReleased() {
 
     }
   } else if (recordState == 2){
-    if(dist(mouseX,mouseY, 2736,880)<80) {
+    if(dist(mouseX,mouseY, 1368,440)<40) {
       recordState = 1;
       totalPausedTime = totalPausedTime+pauseTime;
-    } else if (dist(mouseX, mouseY, 2736, 640) < 80) {
+    } else if (dist(mouseX, mouseY, 1368, 320) < 40) {
       recordState = 3;
       initializeTime();
       saveLog();
       myVideoRec.stopRec()
       recordState = 4
     }
+  }
+  if(mouseX > 0 && mouseX <100 && mouseY > 0 && mouseY < 100){
+    let fs = fullscreen();
+    fullscreen(!fs);
   }
 }
 
@@ -164,20 +168,20 @@ function getRecordTime() {
 
 function recordStates(state) {
   if(state == 0) {
-    image(recordBtn[0], 2592, 592, 288, 288);
+    image(recordBtn[0], 1296, 296, 144, 144);
     
   } else if (state == 1) {
-    image(pauseBox[0], 2616, 464, 240, 592);
+    image(pauseBox[0], 1308, 232, 120, 296);
     
   } else if (state == 2) {
-    image(pauseBox[1], 2616, 464, 240, 592);
+    image(pauseBox[1], 1308, 232, 120, 296);
    
   } else if (state == 3) {
-    image(recordBtn[1], 2592, 592, 288, 288);
+    image(recordBtn[1], 1296, 296, 144, 144);
     
   } else if (state == 4) {
-    image(recordBtn[0], 2592, 592, 288, 288);
-    image(savedIcon,2692,448,128,80);
+    image(recordBtn[0], 1296, 296, 144, 144);
+    image(savedIcon,1346,224,64,40);
     setTimeout(()=>{
       recordState = 0;
     }, 3000);
@@ -214,12 +218,12 @@ function doCOCOSSD(){
       rect(object.x, object.y, object.width, object.height);
       noStroke();
       fill(255,0,254);
-      textSize(40);
+      textSize(20);
       text(object.label+' '+pasengerNum, object.x, object.y - 5);
       
       let centerX = object.x + (object.width/2);
       let centerY = object.y + (object.height/2);
-      strokeWeight(4);
+      strokeWeight(2);
       stroke(255,0,254);
       point(centerX, centerY);
       pop();
@@ -249,11 +253,5 @@ function saveLog(){
 function writeLog(currentState){
   if(currentState == 1){
     myWriter.print(writerMsg);
-  }
-}
-function mousePressed() {
-  if(mouseX > 0 && mouseX <100 && mouseY > 0 && mouseY < 100){
-    let fs = fullscreen();
-    fullscreen(!fs);
   }
 }
