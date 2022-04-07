@@ -39,7 +39,8 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1520, 720);
+//   createCanvas(1520, 720);
+  createCanvas(windowWidth, windowHeight);
   frameRate(24);
   rearSetting = {
     audio: false,
@@ -51,7 +52,8 @@ function setup() {
   }
 //   webcam = createCapture(rearSetting);
   webcam = createCapture(VIDEO);
-  webcam.size(1520, 1140);
+//   webcam.size(1520, 1140);
+  webcam.size(windowWidth, windowHeight);
   webcam.hide();
   myVideoRec = new P5MovRec();
   detector.detect(webcam, gotDetections);
