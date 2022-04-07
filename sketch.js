@@ -48,8 +48,8 @@ function setup() {
       }
     }
   }
-  // webcam = createCapture(rearSetting);
-  webcam = createCapture(VIDEO);
+  webcam = createCapture(rearSetting);
+//   webcam = createCapture(VIDEO);
   webcam.size(1520, 1140);
   webcam.hide();
   myVideoRec = new P5MovRec();
