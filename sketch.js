@@ -53,7 +53,7 @@ function setup() {
   webcam = createCapture(rearSetting);
 //   webcam = createCapture(VIDEO);
   webcam.size(1520, 1140);
-  webcam.size(windowWidth, windowHeight);
+//   webcam.size(windowWidth, windowHeight);
   webcam.hide();
   myVideoRec = new P5MovRec();
   detector.detect(webcam, gotDetections);
@@ -226,7 +226,7 @@ function doCOCOSSD(){
       
       let centerX = object.x + (object.width/2);
       let centerY = object.y + (object.height/2);
-      strokeWeight(2);
+      strokeWeight(20);
       stroke(255,0,254);
       point(centerX, centerY);
       pop();
