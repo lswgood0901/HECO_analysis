@@ -158,9 +158,9 @@ function getRecordTime() {
     recordTime="00:00:00"
   } else if (recordState == 1) {
     let tempTime = curTime - recordStart - totalPausedTime;
-    let recHour = int(tempTime / (1000*60*60)) % 60;
+    let recHour = int(tempTime / (1000*60*60)) % 24;
     let recMin = int(tempTime / (1000*60)) % 60;
-    let recSec = int(tempTime / 1000) % 24;
+    let recSec = int(tempTime / 1000) % 60;
     recordTime = nf(recHour,2,0)+':'+nf(recMin,2,0)+':'+nf(recSec,2,0);
   } else if (recordState == 2){
     pauseTime = millis()-recordPauseStart
